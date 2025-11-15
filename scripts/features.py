@@ -87,12 +87,49 @@ def add_network_flags(df):
         )
     return df
 
+# --- PRODUCTION COMPANIES ---
+import re
+
+def split_companies(company_str):
+    if pd.isnull(company_str):
+        return []
+    return [c.strip() for c in company_str.split(",")]
+
+def clean_companies(company_str):
+    if pd.isnull(company_str):
+        return []
+    # Split on commas not inside parentheses
+    return [c.strip() for c in re.split(r',(?![^()]*\))', company_str)]
+
+def add_company_list(df):
+    # Use the more reliable cleaner
+    df["company_list"] = df["production_companies"].apply(clean_companies)
+    return df
+
+def add_company_flags(df):
+    # Top studios to analyze
+    top_companies = [
+        "TVB",
+        "BBC",
+        "Warner Bros. Television",
+        "Universal Television",
+        "Amazon Studios",
+    ]
+    for company in top_companies:
+        col_name = (
+            f"has_{company.lower().replace(' ', '_').replace('.', '').replace('&', 'and')}"
+        )
+        df[col_name] = df["company_list"].apply(lambda x: company in x)
+    return df
+
 # --- MASTER FEATURE BUILDER ---
 def create_features(df):
     df = add_genre_list(df)
     df = add_genre_flags(df)
     df = add_network_list(df)
     df = add_network_flags(df)
+    df = add_company_list(df)
+    df = add_company_flags(df)
     return df
 
 print("features.py executed")

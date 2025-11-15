@@ -18,6 +18,7 @@ if __name__ == "__main__":
     print("Dataset shape:", df.shape)
     print("Columns:", df.columns.tolist())
     print(df[["networks", "network_list"]].sample(5, random_state=42))
-    print(df[[c for c in df.columns if c.startswith("is_")]].head())
     print(df[["is_abc", "is_netflix", "is_bbc_one"]].head(10))
     print(df[["is_nbc", "is_cbs", "is_fox"]].head(10))
+    print(df[["production_companies", "company_list"]].sample(5, random_state=42))
+    print(df[[c for c in df.columns if c.startswith("is_")]].head())
