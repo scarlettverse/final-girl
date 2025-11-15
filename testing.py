@@ -24,4 +24,5 @@ if __name__ == "__main__":
     print(df[["vote_average", "vote_count", "popularity",
           "is_highly_rated", "is_popular", "is_high_quality",
           "is_obscure", "is_moderately_popular", "is_hyped"]].sample(5, random_state=42))
+    print(df[["number_of_episodes", "is_miniseries", "is_mid_length", "is_long_running"]].sample(5, random_state=42))
     print(df[[c for c in df.columns if c.startswith("is_")]].head())

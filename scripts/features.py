@@ -136,6 +136,15 @@ def add_popularity_flags(df):
 
     return df
 
+# --- EPISODES / TYPE ---
+def add_episode_flags(df):
+    # Episode count tiers
+    df["is_miniseries"] = df["number_of_episodes"] <= 6
+    df["is_mid_length"] = (df["number_of_episodes"] > 6) & (df["number_of_episodes"] <= 20)
+    df["is_long_running"] = df["number_of_episodes"] > 20
+    return df
+
+
 
 # --- MASTER FEATURE BUILDER ---
 def create_features(df):
@@ -146,6 +155,7 @@ def create_features(df):
     df = add_company_list(df)
     df = add_company_flags(df)
     df = add_popularity_flags(df)
+    df = add_episode_flags(df)
     return df
 
 print("features.py executed")
