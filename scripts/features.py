@@ -122,6 +122,21 @@ def add_company_flags(df):
         df[col_name] = df["company_list"].apply(lambda x: company in x)
     return df
 
+# --- POPULARITY & RATINGS ---
+def add_popularity_flags(df):
+    # Vote-based features
+    df["is_highly_rated"] = df["vote_average"] > 7
+    df["is_popular"] = df["vote_count"] > 100
+    df["is_high_quality"] = df["is_highly_rated"] & df["is_popular"]
+
+    # Popularity tiers
+    df["is_obscure"] = df["popularity"] <= 1.0
+    df["is_moderately_popular"] = (df["popularity"] > 1.0) & (df["popularity"] <= 10.0)
+    df["is_hyped"] = df["popularity"] > 10.0
+
+    return df
+
+
 # --- MASTER FEATURE BUILDER ---
 def create_features(df):
     df = add_genre_list(df)
@@ -130,6 +145,7 @@ def create_features(df):
     df = add_network_flags(df)
     df = add_company_list(df)
     df = add_company_flags(df)
+    df = add_popularity_flags(df)
     return df
 
 print("features.py executed")

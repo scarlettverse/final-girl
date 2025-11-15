@@ -21,4 +21,7 @@ if __name__ == "__main__":
     print(df[["is_abc", "is_netflix", "is_bbc_one"]].head(10))
     print(df[["is_nbc", "is_cbs", "is_fox"]].head(10))
     print(df[["production_companies", "company_list"]].sample(5, random_state=42))
+    print(df[["vote_average", "vote_count", "popularity",
+          "is_highly_rated", "is_popular", "is_high_quality",
+          "is_obscure", "is_moderately_popular", "is_hyped"]].sample(5, random_state=42))
     print(df[[c for c in df.columns if c.startswith("is_")]].head())
