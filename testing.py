@@ -17,5 +17,7 @@ if __name__ == "__main__":
     # Checkpoint outputs
     print("Dataset shape:", df.shape)
     print("Columns:", df.columns.tolist())
-    print(df[["genres", "genre_list"]].head())
-    print(df[[c for c in df.columns if c.startswith("has_")]].head())
+    print(df[["networks", "network_list"]].sample(5, random_state=42))
+    print(df[[c for c in df.columns if c.startswith("is_")]].head())
+    print(df[["is_abc", "is_netflix", "is_bbc_one"]].head(10))
+    print(df[["is_nbc", "is_cbs", "is_fox"]].head(10))

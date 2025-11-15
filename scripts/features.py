@@ -4,8 +4,7 @@
 import ast
 import pandas as pd
 
-print(">>> importing features.py")
-
+# --- GENRES ---
 def extract_genres(genre_str):
     
     #Safely parse the 'genres' field (stored as a stringified list of dicts).
@@ -53,9 +52,47 @@ def add_genre_flags(df):
 
     return df
 
+# --- NETWORKS ---
+def split_networks(network_str):
+    if pd.isnull(network_str):
+        return []
+    return [n.strip() for n in network_str.split(",")]
+
+def add_network_list(df):
+    df["network_list"] = df["networks"].apply(split_networks)
+    return df
+
+def add_network_flags(df):
+    # Ensure network_list exists
+    if "network_list" not in df.columns:
+        df["network_list"] = df["networks"].apply(lambda s: [] if pd.isnull(s) else [n.strip() for n in str(s).split(",")])
+
+    # Normalize network names to lowercase
+    df["network_list"] = df["network_list"].apply(lambda nets: [n.strip().lower() for n in nets])
+
+    # Top networks (lowercase for matching)
+    top_networks = ["netflix", "youtube", "bbc one", "abc", "prime video"]
+    for network in top_networks:
+        col_name = f"is_{network.replace(' ', '_')}"
+        df[col_name] = df["network_list"].apply(
+            lambda nets: any(network in n for n in nets)  # substring match, all lowercase
+        )
+
+    # Legacy networks (lowercase columns and matching)
+    legacy_networks = ["nbc", "cbs", "fox"]
+    for network in legacy_networks:
+        col_name = f"is_{network}"
+        df[col_name] = df["networks"].apply(
+            lambda x: (network in str(x).lower()) if pd.notnull(x) else False
+        )
+    return df
+
+# --- MASTER FEATURE BUILDER ---
 def create_features(df):
     df = add_genre_list(df)
     df = add_genre_flags(df)
+    df = add_network_list(df)
+    df = add_network_flags(df)
     return df
 
 print("features.py executed")
