@@ -1,5 +1,5 @@
 # scripts/training.py
-# Logistic Regression survival model
+# Logistic Regression & Decision Tree survival models
 # Imports engineered dataset from prepare_data.py
 # Restores guardrails (flattening, safe feature restriction, numeric filtering)
 # Notes included for clarity
@@ -7,12 +7,15 @@
 from prepare_data import get_dataset
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 import pandas as pd
 
 RANDOM_SEED = 42
 
-def train_logistic():
+def prep_data():
     # === Load engineered dataset ===
     df = get_dataset()
     
@@ -24,10 +27,10 @@ def train_logistic():
         print("\nUnique values in in_production column:")
         print(df["in_production"].value_counts())
 
-    print("\nSurvival split (Final Girl vs Slashed):")
+    print("\nSurvival split (Final Girl vs Scream Queen):")
     print(df["is_final_girl"].value_counts())
 
-    print("\nAverage values for survivors vs slashed:")
+    print("\nAverage values for Final Girl vs Scream Queen:")
     print(df.groupby("is_final_girl")[["number_of_seasons", "vote_average", "popularity"]].mean())
 
     # === Defensive flattening ===
@@ -43,7 +46,7 @@ def train_logistic():
     # Engineered flags (genres, networks, companies, audience signals, tiers, composite scores)
     engineered_flags = [
         col for col in df.columns
-        if col.startswith(("has_", "is_", "scream_queen_score", "final_girl_index"))
+        if col.startswith(("has_", "is_", "killer_karma", "last_laughs"))
     ]
 
     # Restrict to safe + engineered features
@@ -67,16 +70,15 @@ def train_logistic():
     # Align train/test indices
     X_train_enc = X_encoded_clean.loc[X_train.index]
     X_test_enc = X_encoded_clean.loc[X_test.index]
+    
+    return X_train_enc, X_test_enc, y_train, y_test
 
-    # === Train model ===
+    # === Train models ===
+def train_logistic(X_train, y_train, X_test, y_test):
     model = LogisticRegression(max_iter=1000, random_state=RANDOM_SEED)
-    model.fit(X_train_enc, y_train)
-
-    # === Predictions ===
-    y_pred = model.predict(X_test_enc)
-    y_prob = model.predict_proba(X_test_enc)[:, 1]
-
-    # === Metrics ===
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    y_prob = model.predict_proba(X_test)[:, 1]
     metrics = {
         "accuracy": accuracy_score(y_test, y_pred),
         "precision": precision_score(y_test, y_pred, zero_division=0),
@@ -84,16 +86,78 @@ def train_logistic():
         "f1": f1_score(y_test, y_pred, zero_division=0),
         "auc": roc_auc_score(y_test, y_prob) if len(set(y_test)) > 1 else float("nan")
     }
+    return model, metrics
 
+def train_decision_tree(X_train, y_train, X_test, y_test):
+    model = DecisionTreeClassifier(random_state=RANDOM_SEED)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    y_prob = model.predict_proba(X_test)[:, 1]
+    metrics = {
+        "accuracy": accuracy_score(y_test, y_pred),
+        "precision": precision_score(y_test, y_pred, zero_division=0),
+        "recall": recall_score(y_test, y_pred, zero_division=0),
+        "f1": f1_score(y_test, y_pred, zero_division=0),
+        "auc": roc_auc_score(y_test, y_prob) if len(set(y_test)) > 1 else float("nan")
+    }
+    return model, metrics
+
+def train_random_forest(X_train, y_train, X_test, y_test):
+    model = RandomForestClassifier(n_estimators=100, random_state=RANDOM_SEED)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    y_prob = model.predict_proba(X_test)[:, 1]
+    metrics = {
+        "accuracy": accuracy_score(y_test, y_pred),
+        "precision": precision_score(y_test, y_pred, zero_division=0),
+        "recall": recall_score(y_test, y_pred, zero_division=0),
+        "f1": f1_score(y_test, y_pred, zero_division=0),
+        "auc": roc_auc_score(y_test, y_prob)
+    }
+    return model, metrics
+
+def train_gradient_boosting(X_train, y_train, X_test, y_test):
+    model = GradientBoostingClassifier(random_state=RANDOM_SEED)
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+    y_prob = model.predict_proba(X_test)[:, 1]
+
+    metrics = {
+        "accuracy": accuracy_score(y_test, y_pred),
+        "precision": precision_score(y_test, y_pred, zero_division=0),
+        "recall": recall_score(y_test, y_pred, zero_division=0),
+        "f1": f1_score(y_test, y_pred, zero_division=0),
+        "auc": roc_auc_score(y_test, y_prob)
+    }
     return model, metrics
 
 if __name__ == "__main__":
-    model, metrics = train_logistic()
-    print("=== Logistic Regression Baseline ===")
-    print(f"Accuracy: {metrics['accuracy']:.3f}")
-    print(f"Precision: {metrics['precision']:.3f}")
-    print(f"Recall: {metrics['recall']:.3f}")
-    print(f"F1 Score: {metrics['f1']:.3f}")
-    print(f"AUC: {metrics['auc']:.3f}")
+    X_train_enc, X_test_enc, y_train, y_test = prep_data()
+    
+    # Logistic Regression
+    log_model, log_metrics = train_logistic(X_train_enc, y_train, X_test_enc, y_test)
+    print("\n=== Logistic Regression Baseline ===")
+    for k, v in log_metrics.items():
+        print(f"{k.capitalize()}: {v:.3f}")
+        
+    # Decision Tree
+    dt_model, dt_metrics = train_decision_tree(X_train_enc, y_train, X_test_enc, y_test)
+    print("\n=== Decision Tree Baseline ===")
+    for k, v in dt_metrics.items():
+        print(f"{k.capitalize()}: {v:.3f}")
+        
+    # Random Forest
+    rf_model, rf_metrics = train_random_forest(X_train_enc, y_train, X_test_enc, y_test)
+    print("\n=== Random Forest Baseline ===")
+    for k, v in rf_metrics.items():
+        print(f"{k.capitalize()}: {v:.3f}")
+        
+    # Gradient Boosting
+    gb_model, gb_metrics = train_gradient_boosting(X_train_enc, y_train, X_test_enc, y_test)
+    print("\n=== Gradient Boosting Baseline ===")
+    for k, v in gb_metrics.items():
+        print(f"{k.capitalize()}: {v:.3f}")
+        
     print("🩸 Commentary: This baseline is stable and notebook-faithful. "
           "It restores guardrails to prevent error loops while honoring the full Final Girl feature set.")
