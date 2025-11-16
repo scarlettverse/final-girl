@@ -12,6 +12,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 import pandas as pd
+import joblib
+import os
+
 
 RANDOM_SEED = 42
 
@@ -159,5 +162,10 @@ if __name__ == "__main__":
     for k, v in gb_metrics.items():
         print(f"{k.capitalize()}: {v:.3f}")
         
-    print("🩸 Commentary: This baseline is stable and notebook-faithful. "
-          "It restores guardrails to prevent error loops while honoring the full Final Girl feature set.")
+    # === Save best model (Gradient Boosting) ===
+    os.makedirs("models", exist_ok=True)
+    joblib.dump(gb_model, "models/gradient_boosting.pkl")
+    print("\nModel saved to models/gradient_boosting.pkl")
+
+        
+    print("🩸 Commentary: I've trained the survivor, now I'm locking her fate into a .pkl artifact that predict.py can read later.")
