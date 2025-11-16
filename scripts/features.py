@@ -144,6 +144,29 @@ def add_episode_flags(df):
     df["is_long_running"] = df["number_of_episodes"] > 20
     return df
 
+# --- SURVIVAL RULES ---
+def add_survival_rules(df):
+    # Scream Queen composite
+    df["killer_karma"] = (
+        df["is_highly_rated"].astype(int) +
+        df["is_popular"].astype(int) +
+        df["is_hyped"].astype(int) +
+        df["has_drama"].astype(int) +
+        df["is_abc"].astype(int) +
+        df["has_tvb"].astype(int)
+    )
+
+    # Final Girl composite
+    df["last_laughs"] = (
+        df["is_miniseries"].astype(int) +
+        df["is_obscure"].astype(int) +
+        df["has_reality"].astype(int) +
+        df["is_youtube"].astype(int) +
+        df["has_documentary"].astype(int) +
+        df["has_amazon_studios"].astype(int)
+    )
+    return df
+
 
 
 # --- MASTER FEATURE BUILDER ---
@@ -156,6 +179,7 @@ def create_features(df):
     df = add_company_flags(df)
     df = add_popularity_flags(df)
     df = add_episode_flags(df)
+    df = add_survival_rules(df)
     return df
 
 print("features.py executed")

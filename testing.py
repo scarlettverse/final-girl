@@ -31,5 +31,4 @@ flag_columns = [
 ]
 
 print("\n=== Final Feature Snapshot ===")
-print(df[["name", "number_of_episodes", "vote_average", "vote_count", "popularity"] + flag_columns].sample(5, random_state=42))
-
+print(df[["name", "killer_karma", "last_laughs"]].sample(5, random_state=42))
