@@ -3,7 +3,7 @@
 # Activate virtual env: venv\Scripts\Activate.ps1
 
 RANDOM_SEED = 42
-MODEL_PATH = "models/final_girl.pkl"
-SCALER_PATH = "models/final_scaler.pkl"
-
+DATA_PATH = "data/TMDB.csv"
+SHOWS = "data/tv.csv"
+MODEL_PATH = "models/gradient_boosting.pkl"
 TEST_SIZE = 0.2
