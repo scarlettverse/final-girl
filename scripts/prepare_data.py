@@ -108,20 +108,6 @@ def get_dataset():
 def prep_data():
     # === Load engineered dataset ===
     df = get_dataset()
-    
-    # --- Survival diagnostics ---
-    print("Unique values in status column:")
-    print(df["status"].value_counts())
-
-    if "in_production" in df.columns:
-        print("\nUnique values in in_production column:")
-        print(df["in_production"].value_counts())
-
-    print("\nSurvival split (Final Girl vs Scream Queen):")
-    print(df["is_final_girl"].value_counts())
-
-    print("\nAverage values for Final Girl vs Scream Queen:")
-    print(df.groupby("is_final_girl")[["number_of_seasons", "vote_average", "popularity"]].mean())
 
     # === Defensive flattening ===
     # If any list-type columns slipped through (e.g. genre_list, network_list),

@@ -6,7 +6,16 @@ import sys
 import joblib
 import pandas as pd
 from prepare_data import prep_data
-from config import MODEL_PATH, SHOWS
+from config import MODEL_PATH, SHOWS, DATA_PATH
+
+# === Title → features lookup ===
+df_lookup = pd.read_csv(DATA_PATH)
+
+def get_features_by_title(show_name):
+    row = df_lookup[df_lookup["name"] == show_name]
+    if row.empty:
+        return None
+    return row.drop(columns=["name"]).iloc[0].to_dict()
 
 def prediction(tv_show_path=SHOWS):
     # === Load trained model ===
@@ -16,8 +25,15 @@ def prediction(tv_show_path=SHOWS):
     X_train_enc, _, _, _ = prep_data()
     expected_features = X_train_enc.columns
 
-    # === Load Data CSV ===
-    df = pd.read_csv(tv_show_path)
+    # === Load Data CSV or Title Lookup ===
+    if tv_show_path.endswith(".csv"):
+        df = pd.read_csv(tv_show_path)
+    else:
+        features = get_features_by_title(tv_show_path)
+        if features is None:
+            print(f"[!] Show '{tv_show_path}' not found in dataset.")
+            return
+        df = pd.DataFrame([features])
 
     # === Apply same preprocessing pipeline ===
     cat_cols = [c for c in ["type", "status"] if c in df.columns]
@@ -49,7 +65,7 @@ def prediction(tv_show_path=SHOWS):
     results.to_csv("predictions.csv", index=False)
     print("\nPredictions saved to predictions.csv")
     print(results.head())
-    print("\n🩸 Commentary: Each row’s fate is revealed with probability of survival.")
+    print("\n🩸 Commentary: Each show’s fate — whether one title or a full roster — is revealed with its survival probability.")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
