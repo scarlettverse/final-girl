@@ -131,7 +131,7 @@ pip install -r requirements.txt
 
 Run Scripts Locally
 ```
-Python
+Python scripts/prepare_data.py
 python scripts/training.py
 python scripts/predict.py
 ```
@@ -139,7 +139,7 @@ python scripts/predict.py
 <br>
 
 ## 🚀 Deployment: The Sequel
-Every slasher gets a sequel, our model does too. We containerized the project with **Docker**, making it portable and reproducible across machines. The trained model is served through a **Flask API**, so anyone can send data and get predictions back.
+Every slasher gets a sequel, our model does too. We containerized the project with **Docker**, making it portable and reproducible across machines. The trained model is served through a **Flask API**, so anyone can send data and get predictions back: either in CSV Mode for a cast list or Title Mode to see if it’s the Final Girl or the next Scream Queen.
 
 Quick Start:
 - Build the container:
@@ -153,10 +153,15 @@ docker run -p 5000:5000 final-girl
 - Test the API:
   ```
   bash
+  # CSV Mode
   curl -X POST http://localhost:5000/predict \
   -H "Content-Type: application/json" \
   -d '{"number_of_seasons":2,"vote_average":7.5,"popularity":12.3,"status":"Ended"}'
 
+  # Title Mode
+  curl -X POST http://localhost:5000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Buffy the Vampire Slayer"}'
   ```
 
 <br>
@@ -169,6 +174,8 @@ docker run -p 5000:5000 final-girl
 - Train several models, tune them, and pick the best
 - Export your notebook to a script
 - Package your model as a web service and deploy it with Docker
+
+
 
 
 
