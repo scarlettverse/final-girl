@@ -63,6 +63,32 @@ Every slasher story gets rewritten. Our notebook became a set of scripts, each w
 
 <br>
 
+## 📖 Usage: Choose your Fate
+Final Girl now whispers two ways to see who survives next season:
+
+### **The Massacre (CSV Mode)**
+
+Hand the model a whole cast list in one file and it will slash through every row, revealing which shows get renewed and which meet their grisly end.
+`
+Python scripts/predict.py data/TMDB.csv
+`
+### Outputs:
+- Survival probability summary (average, Final Girls vs Scream Queens count)
+- Predictions saved to predictions.csv
+- Sample rows printed to console
+<br>
+
+### **The Solo Kill (Title Mode)**
+
+Call out a single show by name and the model will tell you if she’s the Final Girl or the next Scream Queen.
+`
+Python scripts/predict.py "Buffy the Vampire Slayer"
+`
+### Outputs:
+- Survival probability for that show
+- Prediction saved to predictions.csv
+- Lore‑coded commentary line
+
 ## 📈 Model Performance & Feature Insights
 The model was trained, tested, and scored. Here’s how it performed:
 
@@ -143,5 +169,6 @@ docker run -p 5000:5000 final-girl
 - Train several models, tune them, and pick the best
 - Export your notebook to a script
 - Package your model as a web service and deploy it with Docker
+
 
 
