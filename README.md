@@ -131,7 +131,7 @@ pip install -r requirements.txt
 
 Run Scripts Locally
 ```
-Python
+Python scripts/prepare_data.py
 python scripts/training.py
 python scripts/predict.py
 ```
@@ -174,6 +174,7 @@ docker run -p 5000:5000 final-girl
 - Train several models, tune them, and pick the best
 - Export your notebook to a script
 - Package your model as a web service and deploy it with Docker
+
 
 
 
