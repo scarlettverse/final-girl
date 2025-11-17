@@ -1,3 +1,5 @@
+![Final Girl Banner](assets/FINAL%20GIRL.png)
+
 # 🩸 Final Girl
 Predicting TV show survival with machine learning, not every series gets a sequel.
 
@@ -51,3 +53,4 @@ I reviewed a few options and chose the [TMDb TV Shows Dataset](https://www.kaggl
 - Train several models, tune them, and pick the best
 - Export your notebook to a script
 - Package your model as a web service and deploy it with Docker
+
