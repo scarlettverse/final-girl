@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify
 import joblib
 import pandas as pd
 from prepare_data import prep_data
-from config import MODEL_PATH
+from config import MODEL_PATH, DATA_PATH
 
 app = Flask(__name__)
 
@@ -15,6 +15,15 @@ model = joblib.load(MODEL_PATH)
 # Get expected features from training
 X_train_enc, _, _, _ = prep_data()
 expected_features = X_train_enc.columns
+
+# Load lookup dataset once
+df_lookup = pd.read_csv(DATA_PATH)
+
+def get_features_by_title(show_name):
+    row = df_lookup[df_lookup["name"] == show_name]
+    if row.empty:
+        return None
+    return row.drop(columns=["name"]).iloc[0].to_dict()
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -29,9 +38,15 @@ def predict():
     }
     """
     data = request.get_json()
-
-    # Convert to DataFrame
-    df = pd.DataFrame([data])
+    # === Title Mode ===
+    if "title" in data:
+        features = get_features_by_title(data["title"])
+        if features is None:
+            return jsonify({"error": f"Show '{data['title']}' not found in dataset"}), 404
+        df = pd.DataFrame([features])
+    else:
+        # === Raw Features Mode ===
+        df = pd.DataFrame([data])
 
     # Conditional encoding
     cat_cols = [c for c in ["type", "status"] if c in df.columns]
