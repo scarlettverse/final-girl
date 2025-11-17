@@ -164,6 +164,7 @@ docker run -p 5000:5000 final-girl
   -d '{"title":"Buffy the Vampire Slayer"}'
   ```
 
+*Note: If you update the code, rebuild the Docker image using the steps above before running again*
 <br>
 
 ## 🩸 Sample Output: Fate Revealed
@@ -188,6 +189,7 @@ When you test the API, the model whispers back survival probabilities.
 - Train several models, tune them, and pick the best
 - Export your notebook to a script
 - Package your model as a web service and deploy it with Docker
+
 
 
 
