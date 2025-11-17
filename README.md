@@ -166,6 +166,20 @@ docker run -p 5000:5000 final-girl
 
 <br>
 
+## 🩸 Sample Output: Fate Revealed
+When you test the API, the model whispers back survival probabilities.
+
+### The Massacre (CSV Mode)
+➡️ This show was judged a Scream Queen (not renewed), with ~37% chance of survival.
+![The Massacre](assets/Examples/CSV%20Model.png)
+
+### The Solo Kill (Title Mode)
+➡️ Scandal was judged a Scream Queen, with ~15% chance of survival.
+![The Solo Kill](assets/Examples/Title%20Model.png)
+
+<br>
+
+
 ## 🧪 Scope of Work from the Professor
 
 - Pick a problem that interests you and find a dataset   
@@ -174,6 +188,7 @@ docker run -p 5000:5000 final-girl
 - Train several models, tune them, and pick the best
 - Export your notebook to a script
 - Package your model as a web service and deploy it with Docker
+
 
 
 
