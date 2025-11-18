@@ -2,14 +2,15 @@
 # Loads the saved Gradient Boosting model and makes a single prediction
 # Runs with: python scripts/predict.py
 
+import os
 import sys
 import joblib
 import pandas as pd
-from prepare_data import prep_data
-from config import MODEL_PATH, SHOWS, DATA_PATH
+from prepare_data import prep_data, get_dataset
+from config import MODEL_PATH, SHOWS
 
 # === Title → features lookup ===
-df_lookup = pd.read_csv(DATA_PATH)
+df_lookup = get_dataset()
 
 def get_features_by_title(show_name):
     row = df_lookup[df_lookup["name"] == show_name]
@@ -17,7 +18,7 @@ def get_features_by_title(show_name):
         return None
     return row.drop(columns=["name"]).iloc[0].to_dict()
 
-def prediction(tv_show_path=SHOWS):
+def prediction(show_name=SHOWS):
     # === Load trained model ===
     model = joblib.load(MODEL_PATH)
 
@@ -25,48 +26,59 @@ def prediction(tv_show_path=SHOWS):
     X_train_enc, _, _, _ = prep_data()
     expected_features = X_train_enc.columns
 
-    # === Load Data CSV or Title Lookup ===
-    if tv_show_path.endswith(".csv"):
-        df = pd.read_csv(tv_show_path)
-    else:
-        features = get_features_by_title(tv_show_path)
-        if features is None:
-            print(f"[!] Show '{tv_show_path}' not found in dataset.")
-            return
-        df = pd.DataFrame([features])
+    # === Lookup features by show title ===
+    features = get_features_by_title(show_name)
+    if features is None:
+        print(f"[!] Show '{show_name}' not found in dataset.")
+        return
+    df = pd.DataFrame([features])
 
-    # === Apply same preprocessing pipeline ===
+    # === Encode categorical features ===
     cat_cols = [c for c in ["type", "status"] if c in df.columns]
     df_enc = pd.get_dummies(df, columns=cat_cols, drop_first=True)
     df_enc = df_enc.select_dtypes(include=["number"])
     df_enc = df_enc.reindex(columns=expected_features, fill_value=0)
 
     # === Predict ===
-    predictions = model.predict(df_enc)
-    probabilities = model.predict_proba(df_enc)[:, 1]
+    pred = int(model.predict(df_enc)[0])
+    prob_final = float(model.predict_proba(df_enc)[0, 1])
     
-    # === Output results ===
-    results = pd.DataFrame({
-        "prediction": predictions,
-        "probability_final_girl": probabilities
-    }, index=df.index)
+    # === Lore-coded output ===
+    fate = "Final Girl" if pred == 1 else "Scream Queen"
+    randy_rule = (
+        "She learned the rules and lived to tell the tale"
+        if pred == 1
+        else "Never say I'll be right back"
+    )
     
     # === Summary metrics ===
-    avg_prob = probabilities.mean()
-    final_girl_count = (predictions == 1).sum()
-    scream_queen_count = (predictions == 0).sum()
-
-    print("\n=== Summary Metrics ===")
-    print(f"Average survival probability: {avg_prob:.3f}")
-    print(f"Final Girl predictions: {final_girl_count}")
-    print(f"Scream Queen predictions: {scream_queen_count}")
+    print("\n=== Fate Revealed ===")
+    print(f"Victim: {show_name}")
+    print(f"Fate: {fate}")
+    print(f"Final Girl Grit: {prob_final:.2f}")
+    print(f"Killer Karma: {features.get('killer_karma', 'N/A')}")
+    print(f"Last Laughs: {features.get('last_laughs', 'N/A')}")
+    print(f"Randy Rule: {randy_rule}")
     
     # === Save predictions to CSV ===
-    results.to_csv("predictions.csv", index=False)
-    print("\nPredictions saved to predictions.csv")
-    print(results.head())
-    print("\n🩸 Commentary: Each show’s fate — whether one title or a full roster — is revealed with its survival probability.")
+    out_row = {
+        "victim": show_name,
+        "fate": fate,
+        "final_girl_grit": round(prob_final, 4),
+        "killer_karma": features.get("killer_karma"),
+        "last_laughs": features.get("last_laughs"),
+        "randy_rule": randy_rule,
+        "prediction_raw": pred
+    }
+    out_df = pd.DataFrame([out_row])
 
+    out_path = "predictions.csv"
+    write_header = not os.path.exists(out_path)
+    out_df.to_csv(out_path, mode="w", header=True, index=False)
+    
+    print(f"\nPredictions appended to {out_path}")
+    print(out_df)
+    
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         prediction(SHOWS)
