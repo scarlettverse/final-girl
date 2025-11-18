@@ -158,7 +158,16 @@ docker run -p 5000:5000 final-girl
 The Final Girl API is deployed and live on Render. You can call it directly without running Docker locally.
 - Link:
 ` https://final-girl.onrender.com/predict `
-
+- This endpoint accepts POST requests with JSON payloads.
+- It will return survival predictions based on the show title you enter.
+- Example:
+```
+  curl -X POST https://final-girl.onrender.com/predict \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Scandal"}'
+```
+- ⚠️ Disclaimer
+This is not a website you can browse or interact with directly. The Final Girl project is deployed as an API service. You won’t see a homepage at the Render link — instead, you can make API calls
 <br>
 
 ➡️ Scandal was judged a Scream Queen, with ~.08% chance of survival.
@@ -175,3 +184,4 @@ The Final Girl API is deployed and live on Render. You can call it directly with
 - Train several models, tune them, and pick the best
 - Export your notebook to a script
 - Package your model as a web service and deploy it with Docker
+
