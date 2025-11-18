@@ -63,31 +63,22 @@ Every slasher story gets rewritten. Our notebook became a set of scripts, each w
 
 <br>
 
-## 📖 Usage: Choose your Fate
-Final Girl now whispers two ways to see who survives next season:
+## 📖 Usage: Fate Prediction
+Final Girl is designed to lookup **show titles**. 
+Enter a show title and the model will tell you if she’s the Final Girl or the next Scream Queen.
 
-### **The Massacre (CSV Mode)**
+You can run predictions without Docker by calling the script directly:
 
-Hand the model a whole cast list in one file and it will slash through every row, revealing which shows get renewed and which meet their grisly end.
 `
-Python scripts/predict.py data/TMDB.csv
+Python scripts/predict.py "Lovecraft Country"
 `
-### Outputs:
-- Survival probability summary (average, Final Girls vs Scream Queens count)
-- Predictions saved to predictions.csv
-- Sample rows printed to console
 <br>
 
-### **The Solo Kill (Title Mode)**
+![The Solo Kill](assets/Examples/Lovecraft%20Country.png)
 
-Call out a single show by name and the model will tell you if she’s the Final Girl or the next Scream Queen.
-`
-Python scripts/predict.py "Buffy the Vampire Slayer"
-`
-### Outputs:
-- Survival probability for that show
-- Prediction saved to predictions.csv
-- Lore‑coded commentary line
+*Note: predictions are also saved to predictions.csv for auditing when ran locally.*
+
+<br>
 
 ## 📈 Model Performance & Feature Insights
 The model was trained, tested, and scored. Here’s how it performed:
@@ -139,7 +130,7 @@ python scripts/predict.py
 <br>
 
 ## 🚀 Deployment: The Sequel
-Every slasher gets a sequel, our model does too. We containerized the project with **Docker**, making it portable and reproducible across machines. The trained model is served through a **Flask API**, so anyone can send data and get predictions back: either in CSV Mode for a cast list or Title Mode to see if it’s the Final Girl or the next Scream Queen.
+Every slasher gets a sequel, our model does too. We containerized the project with **Docker**, making it portable and reproducible across machines. The trained model is served through a **Flask API**, so anyone can send data and get predictions back.
 
 Quick Start:
 - Build the container:
@@ -153,11 +144,7 @@ docker run -p 5000:5000 final-girl
 - Test the API:
   ```
   bash
-  # CSV Mode
-  curl -X POST http://localhost:5000/predict \
-  -H "Content-Type: application/json" \
-  -d '{"number_of_seasons":2,"vote_average":7.5,"popularity":12.3,"status":"Ended"}'
-
+ 
   # Title Mode
   curl -X POST http://localhost:5000/predict \
   -H "Content-Type: application/json" \
@@ -167,15 +154,14 @@ docker run -p 5000:5000 final-girl
 *Note: If you update the code, rebuild the Docker image using the steps above before running again*
 <br>
 
-## 🩸 Sample Output: Fate Revealed
-When you test the API, the model whispers back survival probabilities.
+## 🌐 Live API on Render: [Final Girl](https://final-girl.onrender.com)
+The Final Girl API is deployed and live on Render. You can call it directly without running Docker locally.
+- Link:
+` https://final-girl.onrender.com/predict `
 
-### The Massacre (CSV Mode)
-➡️ This show was judged a Scream Queen (not renewed), with ~37% chance of survival.
-![The Massacre](assets/Examples/CSV%20Model.png)
+<br>
 
-### The Solo Kill (Title Mode)
-➡️ Scandal was judged a Scream Queen, with ~15% chance of survival.
+➡️ Scandal was judged a Scream Queen, with ~.08% chance of survival.
 ![The Solo Kill](assets/Examples/Title%20Model.png)
 
 <br>
@@ -189,10 +175,3 @@ When you test the API, the model whispers back survival probabilities.
 - Train several models, tune them, and pick the best
 - Export your notebook to a script
 - Package your model as a web service and deploy it with Docker
-
-
-
-
-
-
-
