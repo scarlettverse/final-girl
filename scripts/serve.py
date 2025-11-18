@@ -1,11 +1,13 @@
 # scripts/serve.py
+# To run: python scripts/serve.py
 # Minimal Flask app to serve predictions as a web service
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
+import json
 import joblib
 import pandas as pd
-from prepare_data import prep_data
-from config import MODEL_PATH, DATA_PATH
+from prepare_data import prep_data, get_dataset
+from config import MODEL_PATH
 
 app = Flask(__name__)
 
@@ -17,7 +19,7 @@ X_train_enc, _, _, _ = prep_data()
 expected_features = X_train_enc.columns
 
 # Load lookup dataset once
-df_lookup = pd.read_csv(DATA_PATH)
+df_lookup = get_dataset()
 
 def get_features_by_title(show_name):
     row = df_lookup[df_lookup["name"] == show_name]
@@ -57,11 +59,35 @@ def predict():
     # Predict
     prediction = int(model.predict(df_enc)[0])
     probability = float(model.predict_proba(df_enc)[0, 1])
+    
+    # Lore-coded classification and narrator line
+    fate = "Final Girl" if prediction == 1 else "Scream Queen"
+    randy_rule = (
+        "She learned the rules and lived to tell the tale"
+        if prediction == 1
+        else "Never say I\'ll be right back"
+    )
+    
+    # Pull engineered features if this is Title Mode
+    killer_karma = None
+    last_laughs = None
+    victim = data.get("title", "")
+    if "title" in data:
+        # Use composite scores from engineered features
+        killer_karma = features.get("killer_karma")
+        last_laughs = features.get("last_laughs")
 
-    return jsonify({
-        "prediction": prediction,
-        "probability_final_girl": probability
-    })
+    return Response(
+        json.dumps({
+        "victim": victim,
+        "fate": fate,
+        "final_girl_grit": round(probability, 2),
+        "killer_karma": killer_karma,
+        "last_laughs": last_laughs,
+        "randy_rule": randy_rule
+    }, indent=2), # pretty-print with 2 spaces
+    mimetype="application/json"
+    )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

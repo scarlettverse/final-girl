@@ -16,6 +16,9 @@ RUN pip install --no-cache-dir -r requirements-docker.txt
 # Copy project files
 COPY . .
 
+# Copy model file explicitly
+COPY models/gradient_boosting.pkl models/gradient_boosting.pkl
+
 # Expose Flask port
 EXPOSE 5000
 
