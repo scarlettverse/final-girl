@@ -152,6 +152,7 @@ docker run -p 5000:5000 final-girl
   ```
 
 *Note: If you update the code, rebuild the Docker image using the steps above before running again*
+
 <br>
 
 ## 🌐 Live API on Render: [Final Girl](https://final-girl.onrender.com)
@@ -184,4 +185,5 @@ This is not a website you can browse or interact with directly. The Final Girl p
 - Train several models, tune them, and pick the best
 - Export your notebook to a script
 - Package your model as a web service and deploy it with Docker
+
 
